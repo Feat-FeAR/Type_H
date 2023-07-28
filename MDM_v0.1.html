@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MetaData Maker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 30px 0 0 60px;
+        }
+
+        h1 {
+            color: #343636;
+            margin-top: 30px;
+            margin-bottom: 2px;
+        }
+
+        h2 {
+            color: #2d556b;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        h5 {
+            color: #343636;
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+
+        /* apply to .stdField class and to id=userFields */
+        .stdField, #userFields {
+            margin-left: 40px;
+        }
+
+        label {
+            display:  inline-block;
+            margin-bottom: 8px;
+            margin-right: 10px;
+        }
+
+        select {
+            width: 200px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 12px 110px;
+            background-color: #6096b3;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* smallButton class-specific style */
+        button.smallButton {
+            padding: 4px 8px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        button:hover {
+            background-color: #537a8f;
+        }
+    </style>   
+</head>
+<body>
+    <h1>MetaData Maker</h1>
+    <h5>Ver.0.1 - TCP-Lab - July-2023</h5>
+
+    <h2>User(s)</h2>
+    <button class="stdField smallButton" onclick="addUser()">[ + ]</button>
+    <button class="smallButton" onclick="removeUser()">[ - ]</button>
+     <!-- Nested <div> to accommodate multiple drop-down menus -->
+    <div id="userFields">
+        <div> <!-- For a single Drop-down menu -->
+            <label for="dropdown_user1">User 1:</label>
+            <select id="dropdown_user1">
+                <!-- Automatically generate drop-down menu options by JS -->
+                <!-- see generateFieldOptions() JavaScript function-->
+            </select>
+        </div>
+    </div>
+
+    <h2>Date</h2>
+    <div class="stdField">
+        <label for="experiment_date">Date:</label>
+        <input type="date" id="experiment_date" value="">
+    </div>
+
+    <h2>Experiment Type</h2>
+    <div class="stdField">
+        <label for="dropdown_type">Experiment Type:</label>
+        <select id="dropdown_type">
+            <!-- Automatically generate drop-down menu options by JS -->
+            <!-- Otherwise directly in HTML:
+            <option value="Calcium Imaging">Calcium Imaging</option>
+            <option value="Patch Clamp">Patch Clamp</option>
+            <option value="Wound Healing">Wound Healing</option>
+            <option value="Random Migration">Random Migration</option>
+            -->
+        </select>
+    </div>
+
+    <br /><br />
+    <button onclick="generateFile()">Make Metadata !</button>
+
+    <!-- The JavaScript starts here -->
+    <script>
+        let userCounter = 2; // Next user's index
+
+        // Array of names for the first drop-down menu
+        // Add more names here as needed
+        const user_names = [
+            "---",
+            "Giorgia Chinigò",
+            "Alesandra Fiorio Pla",
+            "Tullio Genova",
+            "Federico Alessandro Ruffinatti",
+            "Chiara Vaghi",
+            "Luca Visentin"
+            ];
+
+        // Array of experiment types for the second drop-down menu
+        // Add more types here as needed
+        const experiment_type = [
+            "---",
+            "Calcium Imaging",
+            "Patch Clamp",
+            "Wound Healing",
+            "Random Migration",
+            "Micro TAC",
+            "Western Blot",
+            "RT-qPCR"
+            ];
+
+        // Function to generate drop-down field options
+        function generateFieldOptions(field_Id, optionArray) {
+            const dropdown = document.getElementById(field_Id);
+            for (let i = 0; i < optionArray.length; i++) {
+                const option = document.createElement("option");
+                option.value = optionArray[i];
+                option.text = optionArray[i];
+                dropdown.appendChild(option);
+            }
+        }
+
+        // Generate the options for the drop-down menus at page startup
+        generateFieldOptions("dropdown_user1", user_names);
+        generateFieldOptions("dropdown_type", experiment_type);
+
+        // Set the default date to today's date
+        document.getElementById("experiment_date").valueAsDate = new Date();
+
+        function addUser() {
+            const user_section = document.getElementById("userFields");
+            const new_field = document.createElement("div");
+            new_field.innerHTML = `
+                <label for="dropdown_user${userCounter}">User ${userCounter}:</label>
+                <select id="dropdown_user${userCounter}">
+                    <!-- Automatically generate drop-down menu options by JS -->
+                    <!-- see generateFieldOptions() JavaScript function-->
+                </select>
+            `;
+            user_section.appendChild(new_field);
+
+            // Generate the options for the newly created field
+            generateFieldOptions(`dropdown_user${userCounter}`, user_names);
+            userCounter++;
+        }
+
+        function removeUser() {
+            if (userCounter > 2) {
+                userCounter--;
+                const user_section = document.getElementById("userFields");
+                // Remove the last added field
+                user_section.removeChild(user_section.lastElementChild);
+            }
+        }
+
+        function getInitials(firstNameLastName) {
+            // Split the input string into words using space as a delimiter
+            const words = firstNameLastName.split(' ');
+
+            // Initialize an empty string for the initials
+            let initials = '';
+
+            // Loop through the words and take the first character of each word
+            for (let word of words) {
+                if (word.length > 0) {
+                    initials += word[0].toUpperCase();
+                }
+            }
+            
+            return initials;
+        }
+
+        // Make the output
+        function generateFile() {
+            // Some headings
+            let content = "MetaData Maker Heading\n";
+            content += "======================\n\n";
+
+            // User info
+            for (let i = 1; i < userCounter; i++) {
+                const selectedUser = document.getElementById(`dropdown_user${i}`).value;
+                content += `User ${i}: ${selectedUser}\n`;
+            }
+            
+            // Time info
+            const out_date = document.getElementById("experiment_date").value;
+            content += `\nDate: ${out_date}\n`;
+
+            // Experiment info
+            const selectedType = document.getElementById("dropdown_type").value;
+            content += `\nExperiment Type: ${selectedType}\n`;
+
+            // Some trailing strings
+            content += "\nClosing strings here";
+
+            // Build the output filename
+            let fileName = "MetaData";
+            const firstUser = getInitials(document.getElementById(`dropdown_user1`).value);
+            fileName += `_${out_date}_${firstUser}`;
+
+            // Let's use a BLOB
+            const blob = new Blob([content], { type: "text/plain" });
+
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                // Support for Internet Explorer and Microsoft Edge
+                window.navigator.msSaveOrOpenBlob(blob, fileName);
+            } else {
+                // Other browsers
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            }
+        }
+    </script>
+</body>
+</html>
