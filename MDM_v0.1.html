@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>MetaData Maker</title>
+
+    <!-- CSS starts here-->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,24 +29,42 @@
             margin-bottom: 10px;
         }
 
-        /* apply to .stdField class and to id=userFields */
+        /* Indentation */
+        /* Apply to .stdField class and to id=userFields */
         .stdField, #userFields {
             margin-left: 40px;
         }
 
         label {
-            display:  inline-block;
+            display: inline-block;
             margin-bottom: 8px;
             margin-right: 10px;
         }
 
-        select {
-            width: 200px;
+        /* Special style for id=experiment_date input field */
+        #experiment_date {
+            width: 150px;
             padding: 6px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
             margin-bottom: 15px;
+        }
+
+        /* Drop-down menus */
+        select {
+            width: 263px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        /* Special rule for id=dropdown_type */
+        /* Right-aligned lower button */
+        #dropdown_type {
+            width: 190px;
         }
 
         button {
@@ -70,6 +90,7 @@
     </style>   
 </head>
 <body>
+    <!-- HTML (proper) starts here -->
     <h1>MetaData Maker</h1>
     <h5>Ver.0.1 - TCP-Lab - July-2023</h5>
 
@@ -110,7 +131,7 @@
     <br /><br />
     <button onclick="generateFile()">Make Metadata !</button>
 
-    <!-- The JavaScript starts here -->
+    <!-- JavaScript starts here -->
     <script>
         let userCounter = 2; // Next user's index
 
