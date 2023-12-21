@@ -89,26 +89,34 @@
 <body>
     <!-- HTML (proper) starts here -->
     <h1>MetaData Maker</h1>
-    <h5>Ver.0.2 - TCP-Lab - December-2023</h5>
+    <h5>Ver.0.3 - TCP-Lab - December-2023</h5>
+
+    <h2>Date</h2>
+    <div class="stdField">
+        <label for="experiment_date">Date:</label>
+        <input type="date" id="experiment_date" value="">
+    </div>
 
     <h2>User(s)</h2>
     <button class="stdField smallButton" onclick="addUser()">[ + ]</button>
     <button class="smallButton" onclick="removeUser()">[ - ]</button>
     <!-- Nested <div> to accommodate multiple drop-down menus -->
     <div id="userFields">
-        <div> <!-- For a single Drop-down menu -->
-            <label for="dropdown_user1">User 1:</label>
-            <select id="dropdown_user1">
+        <div>
+            <label for="dropdown_user1">
+                User 1:
+            </label>
+            <select id="dropdown_user1"
+                    onchange="toggleCustomInput(this)">
                 <!-- Automatically generate drop-down menu options by JS -->
                 <!-- see generateFieldOptions() JavaScript function-->
             </select>
+            <!-- Input field for a custom name -->
+            <input type="text"
+                   id="custom_user1"
+                   placeholder="Other"
+                   style="display: none;">
         </div>
-    </div>
-
-    <h2>Date</h2>
-    <div class="stdField">
-        <label for="experiment_date">Date:</label>
-        <input type="date" id="experiment_date" value="">
     </div>
 
     <h2>Experiment Type</h2>
@@ -170,32 +178,56 @@
         // Function to generate drop-down field options
         function generateFieldOptions(field_Id, optionArray) {
             const dropdown = document.getElementById(field_Id);
+            dropdown.innerHTML = ''; // Clear previous options
+
+            // Add predefined options
             for (let i = 0; i < optionArray.length; i++) {
                 const option = document.createElement("option");
                 option.value = optionArray[i];
                 option.text = optionArray[i];
                 dropdown.appendChild(option);
             }
+
+            // Add an "Other" option
+            const otherOption = document.createElement("option");
+            otherOption.value = "Other";
+            otherOption.text = "Other";
+            dropdown.appendChild(otherOption);
         }
+
+        // Set the default date to today's date
+        document.getElementById("experiment_date").valueAsDate = new Date();
 
         // Generate the options for the drop-down menus at page startup
         generateFieldOptions("dropdown_user1", user_names);
         generateFieldOptions("dropdown_type", experiment_type);
 
-        // Set the default date to today's date
-        document.getElementById("experiment_date").valueAsDate = new Date();
-
         function addUser() {
             const user_section = document.getElementById("userFields");
             const new_field = document.createElement("div");
             new_field.innerHTML = `
-                <label for="dropdown_user${userCounter}">User ${userCounter}:</label>
-                <select id="dropdown_user${userCounter}"></select>
+                <label for="dropdown_user${userCounter}">
+                    User ${userCounter}:
+                </label>
+                <select id="dropdown_user${userCounter}"
+                        onchange="toggleCustomInput(this)">
+                </select>
+                <input type="text"
+                       id="custom_user${userCounter}"
+                       placeholder="Other"
+                       style="display: none;">
             `;
             user_section.appendChild(new_field);
+
             // Generate the options for the newly created field
             generateFieldOptions(`dropdown_user${userCounter}`, user_names);
             userCounter++;
+        }
+
+        // Function to toggle the display of the custom input based on the selected option
+        function toggleCustomInput(selectElement) {
+            const customInput = selectElement.nextElementSibling;
+            customInput.style.display = selectElement.value === "Other" ? "inline-block" : "none";
         }
 
         function removeUser() {
@@ -207,6 +239,7 @@
             }
         }
 
+        // Get the initials of a composite name to "sign" the filename
         function getInitials(firstNameLastName) {
             // Split the input string into words using space as a delimiter
             const words = firstNameLastName.split(' ');
@@ -231,7 +264,8 @@
 
             // User info
             for (let i = 1; i < userCounter; i++) {
-                const selectedUser = document.getElementById(`dropdown_user${i}`).value;
+                const dropdown = document.getElementById(`dropdown_user${i}`);
+                const selectedUser = dropdown.value === "Other" ? document.getElementById(`custom_user${i}`).value : dropdown.value;
                 content += `User ${i}: ${selectedUser}\n`;
             }
             
